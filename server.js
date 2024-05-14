@@ -21,6 +21,10 @@ app.use(cors())
 // const resp = await client.info();
 // console.log(resp.body);
 
+app.listen(port, () => {
+    console.log(`Example app listening at http://localhost:${port}`)
+})
+
 app.get('/', async (req, res) => {
     res.send('Hello World!')
     const resp = await client.info();
@@ -28,12 +32,8 @@ app.get('/', async (req, res) => {
     console.log(resp);
 })
 
-app.listen(port, () => {
-    console.log(`Example app listening at http://localhost:${port}`)
-})
-
 // Path: server.js
-// Search API: Implémentez des requêtes de recherche simples (match, fulltext).
+// Search API: Implémentez des requêtes de recherche simples (match, fulltext). //OK
 app.get('/search', async (req, res) => {
     console.log(req.query.gameName);
     const searchResult = await client.search({
@@ -50,7 +50,7 @@ app.get('/search', async (req, res) => {
     res.send(searchResult.hits.hits);
 });
 
-// Fuzzy Matching: Ajoutez des fonctionnalités de recherche approximative. OK
+// Fuzzy Matching: Ajoutez des fonctionnalités de recherche approximative. //OK
 app.get('/fuzzy-search', async (req, res) => {
     console.log(req.query.gameName);
     const searchResult = await client.search({
@@ -70,7 +70,7 @@ app.get('/fuzzy-search', async (req, res) => {
     res.send(searchResult.hits.hits);
 });
 
-// Keyword Search: Implémentez des recherches basées sur des mots-clés spécifiques. NON
+// Keyword Search: Implémentez des recherches basées sur des mots-clés spécifiques. //NON
 app.get('/keyword-search', async (req, res) => {
     console.log(req.query.keyword);
     const searchResult = await client.search({
@@ -87,7 +87,7 @@ app.get('/keyword-search', async (req, res) => {
     res.send(searchResult.hits.hits);
 });
 
-// Pagination: Ajoutez des fonctionnalités de pagination aux résultats de recherche. NON
+// Pagination: Ajoutez des fonctionnalités de pagination aux résultats de recherche. //NON
 app.get('/search-with-pagination', async (req, res) => {
     console.log(req.query.gameName);
     const page = req.query.page || 1;
@@ -110,7 +110,7 @@ app.get('/search-with-pagination', async (req, res) => {
     res.send(searchResult.hits.hits);
 });
 
-// Aggregation: Implémentez des agrégations pour des analyses statistiques sur les données.
+// Aggregation: Implémentez des agrégations pour des analyses statistiques sur les données. //NON
 app.get('/aggregation', async (req, res) => {
     const searchResult = await client.search({
         index: 'steam',
@@ -130,16 +130,17 @@ app.get('/aggregation', async (req, res) => {
     res.send(searchResult.aggregations.genres.buckets);
 });
 
+
+// Tout les documents de l'index steam // OK
 app.get('/all', async (req, res) => {
     const searchResult = await client.search({
         index: 'steam',
         body: {
             query: {
                 match_all: {} // Match tous les documents
-            }
+            },
+            size: 10000,
         }
     });
-
     res.send(searchResult.hits.hits)
-
 });
