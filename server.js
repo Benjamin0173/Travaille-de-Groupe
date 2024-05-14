@@ -36,6 +36,21 @@ app.get('/search', async (req, res) => {
     });
 
     console.log(searchResult.hits.hits)
-    res.send(searchResult)
+    res.send(searchResult.hits.hits)
+
+});
+
+app.get('/all', async (req, res) => {
+    const searchResult = await client.search({
+        index: 'steam',
+        body: {
+            query: {
+                match_all: {} // Match tous les documents
+            }
+        }
+    });
+
+    console.log(searchResult.hits.hits)
+    res.send(searchResult.hits.hits)
 
 });
