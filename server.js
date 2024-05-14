@@ -41,7 +41,8 @@ app.get('/search', async (req, res) => {
         body: {
             query: {
                 match: {
-                    name: req.query.gameName
+                    name: req.query.gameName,
+                    operator: 'and'
                 }
             }
         }
@@ -72,13 +73,13 @@ app.get('/fuzzy-search', async (req, res) => {
 
 // Keyword Search: Implémentez des recherches basées sur des mots-clés spécifiques. //NON
 app.get('/keyword-search', async (req, res) => {
-    console.log(req.query.keyword);
+    console.log(req.query.gameName);
     const searchResult = await client.search({
         index: 'steam',
         body: {
             query: {
                 match_phrase: {
-                    name: req.query.keyword
+                    name: req.query.gameName
                 }
             }
         }
