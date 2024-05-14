@@ -43,16 +43,30 @@ app.get('/', async (req, res) => {
 
 // Tout les documents de l'index steam // OK
 app.get('/all', async (req, res) => {
+    const Total = await getTotalDocsCount();
+    const page = req.query.page || 1;
+    const size = req.query.size || 10;
+    const from = (page - 1) * size;
     const searchResult = await client.search({
         index: 'steam',
         body: {
             query: {
                 match_all: {} // Match tous les documents
             },
-            size: 10000,
+            from,
+            size
         }
     });
-    res.send(searchResult.hits.hits)
+    res.json({
+        success: true,
+        total: Total,
+        per_page: size,
+        current_page: page,
+        last_page: Math.ceil(Total / size),
+        from: from + 1,
+        to: from + searchResult.hits.hits.length,
+        data: searchResult.hits.hits,
+    })
 });
 
 // Search API: Implémentez des requêtes de recherche simples (match, fulltext). //OK
