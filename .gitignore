@@ -1,0 +1,20 @@
+# Dossiers
+/node_modules
+/dist
+
+# Fichiers
+.env
+.env.*
+*.log
+
+# Fichiers de configuration
+/config/*.json
+
+# Fichiers de sauvegarde
+*.bak
+*.swp
+*.swo
+
+# Fichiers de dépendances
+/package-lock.json
+/yarn.lock
