@@ -17,43 +17,81 @@ const port = 3000
 
 app.use(cors())
 
-// Test de la connexion
-// const resp = await client.info();
-// console.log(resp.body);
-
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`)
 })
 
+// Test de la connexion
+// const resp = await client.info();
+// console.log(resp.body);
+
+async function getTotalDocsCount() {
+    try {
+        const response = await client.count({ index: 'steam' });
+        return response.count;
+    } catch (error) {
+        console.error("Erreur lors de la récupération du nombre total de documents de l'index :", error);
+        throw error;
+    }
+}
+
 app.get('/', async (req, res) => {
     res.send('Hello World!')
     const resp = await client.info();
-
     console.log(resp);
 })
 
-// Path: server.js
+// Tout les documents de l'index steam // OK
+app.get('/all', async (req, res) => {
+    const searchResult = await client.search({
+        index: 'steam',
+        body: {
+            query: {
+                match_all: {} // Match tous les documents
+            },
+            size: 10000,
+        }
+    });
+    res.send(searchResult.hits.hits)
+});
+
 // Search API: Implémentez des requêtes de recherche simples (match, fulltext). //OK
 app.get('/search', async (req, res) => {
-    console.log(req.query.gameName);
+    const Total = await getTotalDocsCount();
+    const page = req.query.page || 1;
+    const size = req.query.size || 10;
+    const from = (page - 1) * size;
     const searchResult = await client.search({
         index: 'steam',
         body: {
             query: {
                 match: {
                     name: req.query.gameName,
-                    operator: 'and'
                 }
-            }
+            },
+            from,
+            size
         }
     });
 
-    res.send(searchResult.hits.hits);
+    res.json({
+        success: true,
+        total: Total,
+        per_page: size,
+        current_page: page,
+        last_page: Math.ceil(Total / size),
+        from: from + 1,
+        to: from + searchResult.hits.hits.length,
+        data: searchResult.hits.hits,
+    })
 });
 
 // Fuzzy Matching: Ajoutez des fonctionnalités de recherche approximative. //OK
 app.get('/fuzzy-search', async (req, res) => {
-    console.log(req.query.gameName);
+    const Total = await getTotalDocsCount();
+    const page = req.query.page || 1;
+    const size = req.query.size || 10;
+    const from = (page - 1) * size;
     const searchResult = await client.search({
         index: 'steam',
         body: {
@@ -64,42 +102,35 @@ app.get('/fuzzy-search', async (req, res) => {
                         fuzziness: 'AUTO'
                     }
                 }
-            }
+            },
+            from,
+            size
         }
     });
 
-    res.send(searchResult.hits.hits);
+    res.json({
+        success: true,
+        total: Total,
+        per_page: size,
+        current_page: page,
+        last_page: Math.ceil(Total / size),
+        from: from + 1,
+        to: from + searchResult.hits.hits.length,
+        data: searchResult.hits.hits,
+    })
 });
 
-// Keyword Search: Implémentez des recherches basées sur des mots-clés spécifiques. //NON
+// Keyword Search: Implémentez des recherches basées sur des mots-clés spécifiques. //OK //REQUIERE lE NOM DU JEU EXACT
 app.get('/keyword-search', async (req, res) => {
-    console.log(req.query.gameName);
+    const Total = await getTotalDocsCount();
+    const page = req.query.page || 1;
+    const size = req.query.size || 10;
+    const from = (page - 1) * size;
     const searchResult = await client.search({
         index: 'steam',
         body: {
             query: {
                 match_phrase: {
-                    name: req.query.gameName
-                }
-            }
-        }
-    });
-
-    res.send(searchResult.hits.hits);
-});
-
-// Pagination: Ajoutez des fonctionnalités de pagination aux résultats de recherche. //NON
-app.get('/search-with-pagination', async (req, res) => {
-    console.log(req.query.gameName);
-    const page = req.query.page || 1;
-    const size = req.query.size || 10;
-    const from = (page - 1) * size;
-
-    const searchResult = await client.search({
-        index: 'steam',
-        body: {
-            query: {
-                match: {
                     name: req.query.gameName
                 }
             },
@@ -108,7 +139,16 @@ app.get('/search-with-pagination', async (req, res) => {
         }
     });
 
-    res.send(searchResult.hits.hits);
+    res.json({
+        success: true,
+        total: Total,
+        per_page: size,
+        current_page: page,
+        last_page: Math.ceil(Total / size),
+        from: from + 1,
+        to: from + searchResult.hits.hits.length,
+        data: searchResult.hits.hits,
+    })
 });
 
 // Aggregation: Implémentez des agrégations pour des analyses statistiques sur les données. //NON
@@ -129,19 +169,4 @@ app.get('/aggregation', async (req, res) => {
     });
 
     res.send(searchResult.aggregations.genres.buckets);
-});
-
-
-// Tout les documents de l'index steam // OK
-app.get('/all', async (req, res) => {
-    const searchResult = await client.search({
-        index: 'steam',
-        body: {
-            query: {
-                match_all: {} // Match tous les documents
-            },
-            size: 10000,
-        }
-    });
-    res.send(searchResult.hits.hits)
 });
