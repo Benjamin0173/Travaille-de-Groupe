@@ -223,7 +223,7 @@ app.get('/keyword-search', async (req, res) => {
 
 });
 
-// Aggregation: Implémentez des agrégations pour des analyses statistiques sur les données. //NON
+// Aggregation: Implémentez des agrégations pour des analyses statistiques sur les données. //OK
 app.get('/aggregation', async (req, res) => {
     try {
         const searchResult = await client.search({
@@ -247,5 +247,50 @@ app.get('/aggregation', async (req, res) => {
         res.send(e, 500);
     }
 
+
+});
+
+// Scroll API: Implémentez la pagination avec la Scroll API. //OK
+app.get('/scroll', async (req, res) => {
+    try {
+        const searchResponse = await client.search({
+            index: 'steam',
+            scroll: '1m',
+            body: {
+                size: 500,
+                query: { match_all: {} }
+            }
+        });
+
+        // console.log(searchResponse)
+        let scrollId = searchResponse._scroll_id;
+        // res.send('Scroll API Done');
+
+        let results = searchResponse.hits.hits;
+        while (true) {
+            const scrollResponse = await client.scroll({
+                scroll_id: scrollId, // Utilisez scroll_id
+                scroll: '1m'
+            });
+            console.log(scrollResponse);
+
+            // Traitez les résultats scrollResponse.hits.hits ici
+
+            if (scrollResponse.hits.hits.length === 0) {
+                break;
+            }
+
+            scrollId = scrollResponse._scroll_id; // Assurez-vous d'utiliser scrollResponse._scroll_id
+            results += scrollResponse.hits.hits;
+        }
+        // console.log('Test')
+
+        res.send(results);
+
+
+    } catch (e) {
+        console.log(e);
+        res.status(500).send(e);
+    }
 
 });
