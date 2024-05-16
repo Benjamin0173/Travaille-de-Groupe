@@ -143,3 +143,63 @@ L'API Steam Store Games fournit un accès aux données des jeux disponibles sur 
 **URL:** `/index`  
 **Description:** Obtient des informations sur un index spécifique.  
 **Réponse:** Renvoie des détails sur l'index spécifié.
+
+## Présentation de l'application 
+
+L'application est composé d'une seul page qui contient, en haut à gauche le logo de l'application, en haut à droite un champ de recherche pour chercher un jeu, en dessous, la liste des jeux. Il y a également un encadré pour afficher les statistiques sur les prix des jeux.
+![First page](pictures/image.png)
+
+### Affichage des jeux
+
+Pour récupérer les jeux, on utilise scroll Api qui les récupère 10 par 10. Les jeux récupérer son stocker en local dans un state.
+``` js
+// Création du scroll
+searchResult = await client.search({
+    index: 'steam',
+    scroll: '10m',
+    body: {
+        size: 10 // Nombre de résultats par page
+    }
+});
+
+// Récupération des jeux
+ searchResult = await client.scroll({
+    scroll_id: scrollId,
+    scroll: '10m'
+});
+
+```
+ Lorsque l'on fait une recherche par nom, on utilise fuzziness pour récupérer les jeux qui ressemble au nom recherché.
+ ``` js
+const searchResult = await client.search({
+    index: 'steam',
+    body: {
+        query: {
+            match: {
+                name: {
+                    query: req.query.gameName,
+                    fuzziness: 'AUTO'
+                }
+            }
+        },
+        from,
+        size
+    }
+});
+```
+Pour les statistiques, on utilise l'aggrégation pour récupérer les statistiques sur les prix des jeux.
+``` js 
+const searchResult = await client.search({
+            index: 'steam',
+            body: {
+                size: 0,
+                aggs: {
+                    price: {
+                        stats: {
+                            field: 'price'
+                        }
+                    }
+                }
+            }
+        });
+```
