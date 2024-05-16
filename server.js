@@ -253,44 +253,32 @@ app.get('/aggregation', async (req, res) => {
 // Scroll API: Implémentez la pagination avec la Scroll API. //OK
 app.get('/scroll', async (req, res) => {
     try {
-        const searchResponse = await client.search({
-            index: 'steam',
-            scroll: '1m',
-            body: {
-                size: 500,
-                query: { match_all: {} }
-            }
-        });
-
-        // console.log(searchResponse)
-        let scrollId = searchResponse._scroll_id;
-        // res.send('Scroll API Done');
-
-        let results = searchResponse.hits.hits;
-        while (true) {
-            const scrollResponse = await client.scroll({
-                scroll_id: scrollId, // Utilisez scroll_id
-                scroll: '1m'
+        const scrollId = req.query.scrollId;
+        // Use the search API to get the data.
+        let searchResult;
+        if (!scrollId) {
+            searchResult = await client.search({
+                index: 'steam',
+                scroll: '10m',
+                body: {
+                    size: 10 // Nombre de résultats par page
+                }
             });
-            console.log(scrollResponse);
-
-            // Traitez les résultats scrollResponse.hits.hits ici
-
-            if (scrollResponse.hits.hits.length === 0) {
-                break;
-            }
-
-            scrollId = scrollResponse._scroll_id; // Assurez-vous d'utiliser scrollResponse._scroll_id
-            results += scrollResponse.hits.hits;
         }
-        // console.log('Test')
+        else {
+            searchResult = await client.scroll({
+                scroll_id: scrollId,
+                scroll: '10m'
+            });
+        }
 
-        res.send(results);
-
-
+        res.json({
+            success: true,
+            scroll_id: searchResult._scroll_id,
+            data: searchResult.hits.hits
+        });
     } catch (e) {
         console.log(e);
-        res.status(500).send(e);
+        res.send(e, 500);
     }
-
 });
