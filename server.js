@@ -13,8 +13,9 @@ const client = new Client({
 const express = require('express')
 const app = express()
 const cors = require('cors')
+const bodyParser = require('body-parser');
 const port = 3000
-
+app.use(bodyParser.json());
 app.use(cors())
 
 app.listen(port, () => {
@@ -303,5 +304,26 @@ app.get('/index', async (req, res) => {
     } catch (e) {
         console.log(e);
         res.send(e, 500);
+    }
+});
+
+
+app.post('/upload', async (req, res) => {
+    try {
+        //Récupérer les données du jeu à ajouter depuis la requête
+        const newData = req.body;
+        console.log(req.body)
+        console.log(req.query.indexname)
+
+        // Ajouter les données à l'index ElasticSearch
+        const response = await client.index({
+            index: req.query.indexname,
+            body: newData
+        });
+        console.log(response)
+        res.status(201).json({ message: 'Jeu de Données ajouté avec succès' });
+    } catch (error) {
+        console.error('Erreur lors de l\'ajout du Jeu de Données :', error);
+        res.status(500).json({ error: 'Erreur lors de l\'ajout du Jeu de Données' });
     }
 });
