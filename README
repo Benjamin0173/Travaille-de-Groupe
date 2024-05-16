@@ -203,3 +203,14 @@ const searchResult = await client.search({
             }
         });
 ```
+
+## Ajouter un index
+
+### Ajout d'index
+
+**Méthode HTTP:** POST  
+**URL:** `/upload`  
+**Description:** Ce point de terminaison permet d'ajouter un jeu de données à un index spécifié dans Elasticsearch.
+**Réponse:** 
+- 201 Created: Le jeu de données a été ajouté avec succès à l'index spécifié.
+- 500 Internal Server Error: Une erreur s'est produite lors de l'ajout du jeu de données.
