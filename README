@@ -1,0 +1,145 @@
+
+Lien Donnée: https://www.kaggle.com/datasets/nikdavis/steam-store-games/data
+
+
+# Guide d'installation d'Elasticsearch et de Kibana
+
+## Installation d'Elasticsearch
+
+### Étapes d'installation
+
+1. Téléchargez Elasticsearch depuis le site officiel : [https://www.elastic.co/fr/downloads/elasticsearch](https://www.elastic.co/fr/downloads/elasticsearch)
+2. Extrayez le fichier téléchargé dans le répertoire de votre choix.
+3. Accédez au répertoire Elasticsearch extrait.
+4. Configurez Elasticsearch en modifiant le fichier `config/elasticsearch.yml` selon vos besoins.
+5. Démarrez Elasticsearch en exécutant `bin/elasticsearch` depuis le répertoire Elasticsearch.
+
+### Vérification de l'installation
+
+Pour vérifier si Elasticsearch est installé et en cours d'exécution, ouvrez un navigateur web et accédez à l'URL suivante : `http://localhost:9200`. Vous devriez voir une réponse JSON avec des informations sur la version d'Elasticsearch, le numéro de build, etc.
+
+## Installation de Kibana
+
+### Étapes d'installation
+
+1. Téléchargez Kibana depuis le site officiel : [https://www.elastic.co/fr/downloads/kibana](https://www.elastic.co/fr/downloads/kibana)
+2. Extrayez le fichier téléchargé dans le répertoire de votre choix.
+3. Accédez au répertoire Kibana extrait.
+4. Configurez Kibana en modifiant le fichier `config/kibana.yml` selon vos besoins.
+5. Démarrez Kibana en exécutant `bin/kibana` depuis le répertoire Kibana.
+
+### Vérification de l'installation
+
+Pour vérifier si Kibana est installé et en cours d'exécution, ouvrez un navigateur web et accédez à l'URL suivante : `http://localhost:5601`. Vous devriez voir la page d'accueil de Kibana où vous pourrez vous connecter et commencer à explorer vos données.
+
+
+## Commande Util
+### Reset Password
+
+ `bin/elasticsearch-reset-password -u elastic`
+
+Cette commande est utilisée pour réinitialiser le mot de passe de l'utilisateur "elastic". L'option `-u elastic` spécifie l'utilisateur dont le mot de passe doit être réinitialisé. L'utilisateur "elastic" est un super utilisateur par défaut dans Elasticsearch, avec des privilèges étendus sur le cluster. Réinitialiser le mot de passe de cet utilisateur est une bonne pratique de sécurité pour garantir que seul le personnel autorisé a accès à Elasticsearch.
+
+### Enrollment Token
+
+`bin\elasticsearch-create-enrollment-token.bat --scope kibana`
+
+Cette commande est utilisée pour créer un jeton d'enrôlement pour l'intégration de Kibana avec Elasticsearch. Le jeton d'enrôlement est utilisé pour authentifier Kibana auprès d'Elasticsearch lors de l'enregistrement de Kibana dans le cluster. Cela permet à Kibana d'accéder aux données Elasticsearch en toute sécurité. Spécifier `--scope kibana` indique que le jeton d'enrôlement sera utilisé spécifiquement pour l'intégration avec Kibana.
+    
+### Kibana Verification Code
+
+`bin\kibana-verification-code.bat`
+
+Cette commande est utilisée pour générer un code de vérification pour Kibana. Ce code est utilisé lors de la configuration initiale de Kibana pour s'assurer que l'utilisateur qui configure Kibana est autorisé à le faire. Le code de vérification garantit une certaine forme de sécurité lors de la configuration initiale de Kibana.
+
+
+# Documentation de l'API Steam Store Games
+
+## Introduction
+
+L'API Steam Store Games fournit un accès aux données des jeux disponibles sur la plateforme Steam Store. Cette documentation décrit les points de terminaison disponibles, leurs fonctionnalités et les paramètres associés.
+
+## Point de terminaison de connexion
+
+### Test de connexion
+
+**Méthode HTTP:** GET  
+**URL:** `/`  
+**Description:** Ce point de terminaison permet de tester la connexion au serveur Elasticsearch.  
+**Réponse:** Renvoie un message de succès si la connexion est établie avec succès.
+
+## Recherche de jeux
+
+### Recherche par mot-clé
+
+**Méthode HTTP:** GET  
+**URL:** `/search`  
+**Paramètres:**
+
+- `gameName`: Le nom du jeu à rechercher.  
+    **Description:** Recherche les jeux par leur nom.  
+    **Réponse:** Renvoie une liste de jeux correspondant au nom spécifié.
+
+### Recherche floue
+
+**Méthode HTTP:** GET  
+**URL:** `/fuzzy-search`  
+**Paramètres:**
+
+- `gameName`: Le nom du jeu à rechercher.  
+    **Description:** Recherche les jeux par un nom approximatif. Utilise la recherche floue pour trouver des jeux similaires au nom spécifié.  
+    **Réponse:** Renvoie une liste de jeux correspondant au nom spécifié.
+
+### Recherche par mot-clé exact
+
+**Méthode HTTP:** GET  
+**URL:** `/keyword-search`  
+**Paramètres:**
+
+- `gameName`: Le nom exact du jeu à rechercher.  
+    **Description:** Recherche les jeux par un nom exact.  
+    **Réponse:** Renvoie une liste de jeux correspondant exactement au nom spécifié.
+
+## Pagination
+
+### Récupération de tous les jeux
+
+**Méthode HTTP:** GET  
+**URL:** `/all`  
+**Paramètres:**
+
+- `page`: Le numéro de la page à récupérer.
+- `size`: La taille de la page (nombre de jeux par page).  
+    **Description:** Récupère tous les jeux de la base de données avec une pagination.  
+    **Réponse:** Renvoie une liste paginée de tous les jeux.
+
+### Scroll API
+
+**Méthode HTTP:** GET  
+**URL:** `/scroll`  
+**Description:** Utilise la Scroll API pour parcourir tous les jeux de la base de données. Renvoie tous les jeux avec une pagination à défilement.
+
+## Analyse statistique
+
+### Agrégation des prix
+
+**Méthode HTTP:** GET  
+**URL:** `/aggregation`  
+**Description:** Effectue une agrégation des prix des jeux pour des analyses statistiques.  
+**Réponse:** Renvoie des statistiques sur les prix des jeux.
+
+## Informations sur l'index
+
+### Informations sur les index
+
+**Méthode HTTP:** GET  
+**URL:** `/cat`  
+**Description:** Utilise la Cat API pour obtenir des informations sur les index.  
+**Réponse:** Renvoie des informations détaillées sur les index Elasticsearch.
+
+### Informations sur un index spécifique
+
+**Méthode HTTP:** GET  
+**URL:** `/index`  
+**Description:** Obtient des informations sur un index spécifique.  
+**Réponse:** Renvoie des détails sur l'index spécifié.

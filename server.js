@@ -21,19 +21,6 @@ app.listen(port, () => {
     console.log(`Api listening at http://localhost:${port}`)
 })
 
-async function TestConnection() {
-    try {
-        const resp = await client.info();
-        console.log("Connecté au cluster Elasticsearch !")
-        // console.log(resp)
-    } catch (error) {
-        console.error("Impossible de se connecter au cluster Elasticsearch !");
-    }
-}
-
-// TestConnection();
-
-
 async function getTotalDocsCount() {
     try {
         const response = await client.count({ index: 'steam' });
@@ -46,9 +33,10 @@ async function getTotalDocsCount() {
 
 app.get('/', async (req, res) => {
     try {
-        res.send('Hello World!')
         const resp = await client.info();
         console.log(resp);
+        res.send(resp)
+
     }
     catch (e) {
         console.log(e);
