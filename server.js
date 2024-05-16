@@ -8,7 +8,7 @@ const client = new Client({
         rejectUnauthorized: false // Disable certificate verification
     }
 })
-
+// https://www.kaggle.com/datasets/nikdavis/steam-store-games/data
 // Path: server.js
 const express = require('express')
 const app = express()
@@ -293,4 +293,27 @@ app.get('/scroll', async (req, res) => {
         res.status(500).send(e);
     }
 
+});
+
+// Cat API: Utilisez la Cat API pour obtenir des informations sur les index. //OK
+app.get('/cat', async (req, res) => {
+    try {
+        const response = await client.cat.indices({ index: 'steam', v: true });
+        res.send(response);
+    } catch (e) {
+        console.log(e);
+        res.send(e, 500);
+    }
+}
+);
+
+// Index API: Utilisez l'Index API pour obtenir des informations sur un index spécifique. //OK
+app.get('/index', async (req, res) => {
+    try {
+        const response = await client.index({ index: 'steam' });
+        res.send(response);
+    } catch (e) {
+        console.log(e);
+        res.send(e, 500);
+    }
 });
